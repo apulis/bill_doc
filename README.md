@@ -235,3 +235,16 @@
     }
   ]
   ```
+
+  **POST** /api/Ratios
+
+  Request:
+  
+  | key | from | required | type | desc |
+  | ------- | ------- | ------- | ------- | ------- |
+  | key | body | Y | string | Metrics or usage Type |
+  | value | body | Y | double | The ratio value | 
+  
+  Example:
+  
+  curl -X POST "http://example.com/api/Ratios" -H  "accept: */*" -H  "Content-Type: application/json" -d "{\"key\":\"string\",\"value\":0}"
