@@ -15,7 +15,7 @@
   | npu_mem_percent | The memory usage percent of NPU |
 
 
-## Bills
+## Bill
 
 - Get bill list
 
@@ -88,7 +88,7 @@
   /api/Bills
   ```
   [
-  {
+    {
         "id":"aa50adb9-7712-405b-a544-af0179d4b783",
         "startTime":"2021-02-06T04:00:00",
         "endTime":"2021-02-06T04:59:59",
@@ -192,6 +192,46 @@
         "deviceId":null,
         "usage":60483541.40160001,
         "fee":0
+    }
+  ]
+  ```
+
+## Ratio
+  The ratio will be used to calculate the fee.
+  
+- Get ratio list  
+  
+  **GET** /api/Ratios
+  
+  Response:
+  
+  | name | type | desc |
+  | ------- | ------- | ------- |
+  | key | string | Metrics or usage Type |
+  | value | double | The ratio value |
+  
+  Example:
+  ```json
+  [
+    {
+        "key":"mem_byte",
+        "value":0
+    },
+    {
+        "key":"mem_percent",
+        "value":0
+    },
+    {
+        "key":"cpu_percent",
+        "value":10
+    },
+    {
+        "key":"gpu_percent",
+        "value":100
+    },
+    {
+        "key":"gpu_mem_percent",
+        "value":50
     }
   ]
   ```
