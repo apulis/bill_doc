@@ -1,91 +1,26 @@
-# API Doc version 0.1.0
+# Bill
 
-## Meta Data
+## Introduction
 
-- Metrics/Usage Type
+- The collectors will collect the metrics of a job in every 30 seconds, including:
 
-  | name | desc |
-  | ------- | ------- |
-  | cpu_percent | The usage percent of CPU |
-  | mem_byte | The usage bytes of memory |
-  | mem_percent | The usage percent of memory |
-  | gpu_percent | The usage percent GPU |
-  | gpu_mem_percent | The memory usage percent of GPU |
-  | npu_percent | The usage percent NPU |
-  | npu_mem_percent | The memory usage percent of NPU |
+  - Memory Usage
+  - CPU Usage
+  - GPU Usage
+  - NPU Usage
 
+- The calculator will calculate the usage in every hour. The fomula is `Usage = (SUM(metrics value) / metrics count) * use time`, and the use time usually equals to 1 excepts:
 
-## Bill
+  - The job start time > the start time of an hour
+  - The job end time < the end time of an hour
+ 
+- The usage multiplying the ratio turn out to be the fee
 
-- Get bill list
+## API Description
+[API Document](Api.md)
 
-  **GET** /api/Bills
+## Bill Sample
 
-  Request:
-  
-  | key | from | required | type | desc |
-  | ------- | ------- | ------- | ------- | ------- |
-  | user | query | N | string | The username |
-  | type | query | N | string |  Usage Type like cpu_percent, mem_percent etc. | 
-  
-  Response:
-  
-  | name | type | desc |
-  | ------- | ------- | ------- |
-  | id | uuid | Bill Id |
-  | startTime | datetime | Start time, utc format |
-  | endTime | datetime | End time, utc format |
-  | jobId | uuid | Job Id |
-  | jobName | string | Job Name |
-  | username | string | Username |
-  | vcName | string | The name of virtual cluster |
-  | type | string | Metrics or usage Type |
-  | node | string | The IP of the node where job runs on |
-  | device | string | Device model |
-  | deviceId | string | Device Id, like GPU Id or NPU Id |
-  | usage | double | Usage between start time and end time |
-  | fee | double | Fee between start time and end time |
-   
-  Example:
-  
-  /api/Bills?user=admin&type=cpu_percent
-  
-  ```
-  [
-    {
-        "id":"cad0fbbf-039c-4761-b188-2d2d41fe542a",
-        "startTime":"2021-02-09T08:00:00",
-        "endTime":"2021-02-09T08:59:59",
-        "jobId":"6ab46d21-a0ab-4515-981c-f1f2420017d0",
-        "jobName":"",
-        "username":"admin",
-        "vcName":"platform",
-        "type":"cpu_percent",
-        "node":"192.168.1.212",
-        "device":"Intel(R) Core(TM) i7-9700 CPU @ 3.00GHz",
-        "deviceId":null,
-        "usage":0.7749166666666668,
-        "fee":7.749166666666668
-    },
-    {
-        "id":"6c222247-f48c-495e-96e5-3e34690fb40d",
-        "startTime":"2021-02-09T07:00:00",
-        "endTime":"2021-02-09T07:59:59",
-        "jobId":"6ab46d21-a0ab-4515-981c-f1f2420017d0",
-        "jobName":"",
-        "username":"admin",
-        "vcName":"platform",
-        "type":"cpu_percent",
-        "node":"192.168.1.212",
-        "device":"Intel(R) Core(TM) i7-9700 CPU @ 3.00GHz",
-        "deviceId":null,
-        "usage":0.7663333333333335,
-        "fee":7.663333333333336
-    }
-  ]
-  ```
-  
-  /api/Bills
   ```
   [
     {
@@ -195,58 +130,3 @@
     }
   ]
   ```
-
-## Ratio
-  The ratio will be used to calculate the fee.
-  
-- Get ratio list  
-  
-  **GET** /api/Ratios
-  
-  Response:
-  
-  | name | type | desc |
-  | ------- | ------- | ------- |
-  | key | string | Metrics or usage Type |
-  | value | double | The ratio value |
-  
-  Example:
-  ```json
-  [
-    {
-        "key":"mem_byte",
-        "value":0
-    },
-    {
-        "key":"mem_percent",
-        "value":0
-    },
-    {
-        "key":"cpu_percent",
-        "value":10
-    },
-    {
-        "key":"gpu_percent",
-        "value":100
-    },
-    {
-        "key":"gpu_mem_percent",
-        "value":50
-    }
-  ]
-  ```
-
-- Create ratio
-
-  **POST** /api/Ratios
-
-  Request:
-  
-  | key | from | required | type | desc |
-  | ------- | ------- | ------- | ------- | ------- |
-  | key | body | Y | string | Metrics or usage Type |
-  | value | body | Y | double | The ratio value | 
-  
-  Example:
-  
-  curl -X POST "http://example.com/api/Ratios" -H  "accept: */*" -H  "Content-Type: application/json" -d "{\"key\":\"string\",\"value\":0}"
