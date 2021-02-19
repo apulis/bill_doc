@@ -14,7 +14,7 @@
   - The job start time > the start time of an hour
   - The job end time < the end time of an hour
  
-- The usage multiplying the ratio turn out to be the fee
+- The usage multiplying the ratio turns out to be the fee
 
 ## API Description
 [API Document](Api.md)
