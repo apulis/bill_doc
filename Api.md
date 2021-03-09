@@ -4,17 +4,18 @@
 
 ## Meta Data
 
-- Metrics/Usage Type
+- Usage Type
 
   | name | desc |
   | ------- | ------- |
-  | cpu_percent | The usage percent of CPU |
-  | mem_byte | The usage bytes of memory |
-  | mem_percent | The usage percent of memory |
-  | gpu_percent | The usage percent GPU |
-  | gpu_mem_percent | The memory usage percent of GPU |
-  | npu_percent | The usage percent NPU |
-  | npu_mem_percent | The memory usage percent of NPU |
+  | cpu | The usage of CPU, unit m |
+  | mem | The usage of memory, unit Mi |
+  | gpu | The usage of GPU, unit number |
+  | npu | The usage of NPU, unit number |
+
+<h1 id="bill-api">Bill API v0.1.0</h1>
+
+<!-- > Scroll down for code samples, example requests and responses. Select a language for code samples from the tabs above or the mobile navigation menu. -->
 
 <h1 id="bill-api-bills">Bills</h1>
 
@@ -36,8 +37,8 @@ curl -X GET /api/Bills \
 
 |Name|In|Type|Required|Description|
 |---|---|---|---|---|
-|user|query|string|false|The username|
-|type|query|string|false|Usage Type like cpu_percent, mem_percent etc.|
+|userId|query|string(uuid)|false|User Id|
+|type|query|string|false|Usage Type like cpu, mem, gpu, npu etc.|
 
 <h3 id="get-bill-list-responses">Responses</h3>
 
@@ -56,15 +57,17 @@ Status Code **200**
 |» startTime|string(date-time)|false|none|Start time, utc format|
 |» endTime|string(date-time)|false|none|End time, utc format|
 |» jobId|string¦null|false|none|Job Id|
-|» jobName|string¦null|false|none|Job Name|
+|» jobName|string¦null|false|none|Job name|
+|» userId|string(uuid)|false|none|User Id|
 |» username|string¦null|false|none|Username|
 |» vcName|string¦null|false|none|The name of virtual cluster|
-|» type|string¦null|false|none|Metrics or usage Type|
+|» type|string¦null|false|none|Usage type, cpu, mem, gpu, npu|
 |» node|string¦null|false|none|The IP of the node where job runs on|
 |» device|string¦null|false|none|Device model|
-|» deviceId|string¦null|false|none|Device Id, like GPU Id or NPU Id|
-|» usage|number(double)|false|none|Usage between start time and end time|
-|» fee|number(double)|false|none|Fee between start time and end time|
+|» quota|number(double)|false|none|Device quota, CPU unit - m, Memory unit - Mi, GPU/NPU unit - number|
+|» usage|number(double)|false|none|Sum of the resource usage, using hour as unit|
+|» fee|number(double)|false|none|Fee|
+|» isRunning|boolean|false|none|Whether the job is still running|
 
 <aside class="success">
 This operation does not require authentication now
@@ -188,6 +191,97 @@ curl -X DELETE /api/Ratios/{key} \
 This operation does not require authentication now
 </aside>
 
+<h1 id="bill-api-usages">Usages</h1>
+
+## Get Usage List
+
+<a id="opIdGet Usage List"></a>
+
+`GET /api/Usages`
+
+<h3>Code samples</h3>
+
+```shell
+curl -X GET /api/Usages \
+  -H 'Accept: text/plain'
+
+```
+
+<h3 id="get-usage-list-parameters">Parameters</h3>
+
+|Name|In|Type|Required|Description|
+|---|---|---|---|---|
+|userId|query|string(uuid)|false|User Id|
+|type|query|string|false|Usage Type like cpu, mem, gpu, npu etc.|
+
+<h3 id="get-usage-list-responses">Responses</h3>
+
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|Returns the usage list|Inline|
+
+<h3 id="get-usage-list-responseschema">Response Schema</h3>
+
+Status Code **200**
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|*anonymous*|[[UsageItem](#schemausageitem)]|false|none|none|
+|» id|string(uuid)|false|none|Usage Id|
+|» startTime|string(date-time)|false|none|Start time, utc format|
+|» endTime|string(date-time)|false|none|End time, utc format|
+|» jobId|string¦null|false|none|Job Id|
+|» jobName|string¦null|false|none|Job Name|
+|» userId|string(uuid)|false|none|User Id|
+|» username|string¦null|false|none|Username|
+|» vcName|string¦null|false|none|The name of virtual cluster|
+|» type|string¦null|false|none|Usage Type, cpu, mem, gpu, npu|
+|» node|string¦null|false|none|The IP of the node where job runs on|
+|» device|string¦null|false|none|Device model|
+|» quota|number(double)|false|none|Device quota, CPU unit - m, Memory unit - Mi, GPU/NPU unit - number|
+|» usage|number(double)|false|none|Sum of the resource usage, using hour as unit|
+|» isRunning|boolean|false|none|Whether the job is still running|
+
+<aside class="success">
+This operation does not require authentication now
+</aside>
+
+<h1 id="bill-api-users">Users</h1>
+
+## Get User List
+
+<a id="opIdGet User List"></a>
+
+`GET /api/Users`
+
+<h3>Code samples</h3>
+
+```shell
+curl -X GET /api/Users \
+  -H 'Accept: text/plain'
+
+```
+
+<h3 id="get-user-list-responses">Responses</h3>
+
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|Returns the user list|Inline|
+
+<h3 id="get-user-list-responseschema">Response Schema</h3>
+
+Status Code **200**
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|*anonymous*|[[UserItem](#schemauseritem)]|false|none|none|
+|» id|string(uuid)|false|none|none|
+|» userName|string¦null|false|none|none|
+
+<aside class="success">
+This operation does not require authentication now
+</aside>
+
 # Schemas
 
 <h2 id="tocS_BillItem">BillItem</h2>
@@ -223,8 +317,13 @@ This operation does not require authentication now
     },
     "jobName": {
       "type": "string",
-      "description": "Job Name",
+      "description": "Job name",
       "nullable": true
+    },
+    "userId": {
+      "type": "string",
+      "description": "User Id",
+      "format": "uuid"
     },
     "username": {
       "type": "string",
@@ -238,7 +337,7 @@ This operation does not require authentication now
     },
     "type": {
       "type": "string",
-      "description": "Metrics or usage Type",
+      "description": "Usage type, cpu, mem, gpu, npu",
       "nullable": true
     },
     "node": {
@@ -251,20 +350,24 @@ This operation does not require authentication now
       "description": "Device model",
       "nullable": true
     },
-    "deviceId": {
-      "type": "string",
-      "description": "Device Id, like GPU Id or NPU Id",
-      "nullable": true
+    "quota": {
+      "type": "number",
+      "description": "Device quota, CPU unit - m, Memory unit - Mi, GPU/NPU unit - number",
+      "format": "double"
     },
     "usage": {
       "type": "number",
-      "description": "Usage between start time and end time",
+      "description": "Sum of the resource usage, using hour as unit",
       "format": "double"
     },
     "fee": {
       "type": "number",
-      "description": "Fee between start time and end time",
+      "description": "Fee",
       "format": "double"
+    },
+    "isRunning": {
+      "type": "boolean",
+      "description": "Whether the job is still running"
     }
   },
   "additionalProperties": false
@@ -280,15 +383,17 @@ This operation does not require authentication now
 |startTime|string(date-time)|false|none|Start time, utc format|
 |endTime|string(date-time)|false|none|End time, utc format|
 |jobId|string¦null|false|none|Job Id|
-|jobName|string¦null|false|none|Job Name|
+|jobName|string¦null|false|none|Job name|
+|userId|string(uuid)|false|none|User Id|
 |username|string¦null|false|none|Username|
 |vcName|string¦null|false|none|The name of virtual cluster|
-|type|string¦null|false|none|Metrics or usage Type|
+|type|string¦null|false|none|Usage type, cpu, mem, gpu, npu|
 |node|string¦null|false|none|The IP of the node where job runs on|
 |device|string¦null|false|none|Device model|
-|deviceId|string¦null|false|none|Device Id, like GPU Id or NPU Id|
-|usage|number(double)|false|none|Usage between start time and end time|
-|fee|number(double)|false|none|Fee between start time and end time|
+|quota|number(double)|false|none|Device quota, CPU unit - m, Memory unit - Mi, GPU/NPU unit - number|
+|usage|number(double)|false|none|Sum of the resource usage, using hour as unit|
+|fee|number(double)|false|none|Fee|
+|isRunning|boolean|false|none|Whether the job is still running|
 
 <h2 id="tocS_RatioInfo">RatioInfo</h2>
 <!-- backwards compatibility -->
@@ -323,4 +428,141 @@ This operation does not require authentication now
 |---|---|---|---|---|
 |key|string¦null|false|none|Metrics or usage Type|
 |value|number(double)|false|none|The ratio value|
+
+<h2 id="tocS_UsageItem">UsageItem</h2>
+<!-- backwards compatibility -->
+<a id="schemausageitem"></a>
+<a id="schema_UsageItem"></a>
+<a id="tocSusageitem"></a>
+<a id="tocsusageitem"></a>
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Usage Id",
+      "format": "uuid"
+    },
+    "startTime": {
+      "type": "string",
+      "description": "Start time, utc format",
+      "format": "date-time"
+    },
+    "endTime": {
+      "type": "string",
+      "description": "End time, utc format",
+      "format": "date-time"
+    },
+    "jobId": {
+      "type": "string",
+      "description": "Job Id",
+      "nullable": true
+    },
+    "jobName": {
+      "type": "string",
+      "description": "Job Name",
+      "nullable": true
+    },
+    "userId": {
+      "type": "string",
+      "description": "User Id",
+      "format": "uuid"
+    },
+    "username": {
+      "type": "string",
+      "description": "Username",
+      "nullable": true
+    },
+    "vcName": {
+      "type": "string",
+      "description": "The name of virtual cluster",
+      "nullable": true
+    },
+    "type": {
+      "type": "string",
+      "description": "Usage Type, cpu, mem, gpu, npu",
+      "nullable": true
+    },
+    "node": {
+      "type": "string",
+      "description": "The IP of the node where job runs on",
+      "nullable": true
+    },
+    "device": {
+      "type": "string",
+      "description": "Device model",
+      "nullable": true
+    },
+    "quota": {
+      "type": "number",
+      "description": "Device quota, CPU unit - m, Memory unit - Mi, GPU/NPU unit - number",
+      "format": "double"
+    },
+    "usage": {
+      "type": "number",
+      "description": "Sum of the resource usage, using hour as unit",
+      "format": "double"
+    },
+    "isRunning": {
+      "type": "boolean",
+      "description": "Whether the job is still running"
+    }
+  },
+  "additionalProperties": false
+}
+
+```
+
+### Properties
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|id|string(uuid)|false|none|Usage Id|
+|startTime|string(date-time)|false|none|Start time, utc format|
+|endTime|string(date-time)|false|none|End time, utc format|
+|jobId|string¦null|false|none|Job Id|
+|jobName|string¦null|false|none|Job Name|
+|userId|string(uuid)|false|none|User Id|
+|username|string¦null|false|none|Username|
+|vcName|string¦null|false|none|The name of virtual cluster|
+|type|string¦null|false|none|Usage Type, cpu, mem, gpu, npu|
+|node|string¦null|false|none|The IP of the node where job runs on|
+|device|string¦null|false|none|Device model|
+|quota|number(double)|false|none|Device quota, CPU unit - m, Memory unit - Mi, GPU/NPU unit - number|
+|usage|number(double)|false|none|Sum of the resource usage, using hour as unit|
+|isRunning|boolean|false|none|Whether the job is still running|
+
+<h2 id="tocS_UserItem">UserItem</h2>
+<!-- backwards compatibility -->
+<a id="schemauseritem"></a>
+<a id="schema_UserItem"></a>
+<a id="tocSuseritem"></a>
+<a id="tocsuseritem"></a>
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "userName": {
+      "type": "string",
+      "nullable": true
+    }
+  },
+  "additionalProperties": false
+}
+
+```
+
+### Properties
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|id|string(uuid)|false|none|none|
+|userName|string¦null|false|none|none|
 
